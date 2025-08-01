@@ -73,6 +73,35 @@ fun Route.configureFeesEndpoint(mempoolCollector: MempoolCollector) {
       call.respond(response)
     }
   }
+
+  get("/fees/target/{num_blocks}") {
+    val numBlocks = call.parameters["num_blocks"]?.toDoubleOrNull()
+    if (numBlocks == null) {
+      logger.warn("Invalid or missing num_blocks parameter")
+      call.respondText(
+        "Invalid or missing number of blocks",
+        status = HttpStatusCode.BadRequest,
+        contentType = ContentType.Text.Plain,
+      )
+      return@get
+    }
+    logger.info("Received request for fee estimates targeting {numBlocks} blocks")
+    val currentEstimate = mempoolCollector.getLatestFeeEstimateForBlockTarget(numBlocks)
+
+    if (currentEstimate == null) {
+      logger.warn("No fee estimates available yet")
+      call.respondText(
+        "No fee estimates available yet",
+        status = HttpStatusCode.ServiceUnavailable,
+        contentType = ContentType.Text.Plain,
+      )
+    } else {
+      logger.info("Transforming fee estimates for response")
+      val response = transformFeeEstimate(currentEstimate)
+      logger.debug("Returning fee estimates with ${response.estimates.size} targets")
+      call.respond(response)
+    }
+  }
 }
 
 /**
