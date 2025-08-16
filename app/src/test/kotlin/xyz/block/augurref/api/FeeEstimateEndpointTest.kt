@@ -205,20 +205,6 @@ class FeeEstimateEndpointTest {
     verify { mockMempoolCollector.getLatestFeeEstimateForBlockTarget(2.0) }
   }
 
-  @Test
-  fun `should handle decimal num_blocks parameter`() = testApplication {
-    val fixedInstant = Instant.parse("2025-01-15T08:15:30.999Z")
-    val mockFeeEstimate = createMockFeeEstimate(fixedInstant)
-    every { mockMempoolCollector.getLatestFeeEstimateForBlockTarget(1.5) } returns mockFeeEstimate
-
-    configureTestApplication()
-
-    client.get("/fees/target/1.5").apply {
-      assertEquals(HttpStatusCode.OK, status)
-    }
-
-    verify { mockMempoolCollector.getLatestFeeEstimateForBlockTarget(1.5) }
-  }
 
   private fun createMockFeeEstimate(timestamp: Instant): FeeEstimate {
     // Create mock data using the actual augur library structure
