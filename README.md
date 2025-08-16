@@ -175,6 +175,81 @@ Example response:
 }
 ```
 
+
+Historical fee estimates at:
+
+```
+GET /historical_fee?timestamp=<unix_timestamp>
+```
+
+Example response:
+```json
+
+{
+  "mempool_update_time" : "2025-08-16T14:05:44.854Z",
+  "estimates" : {
+    "3" : {
+      "probabilities" : {
+        "0.05" : {
+          "fee_rate" : 1.0
+        },
+        "0.20" : {
+          "fee_rate" : 1.0
+        },
+        "0.50" : {
+          "fee_rate" : 1.0
+        },
+        "0.80" : {
+          "fee_rate" : 1.0
+        },
+        "0.95" : {
+          "fee_rate" : 1.0
+        }
+      }
+    },
+    "6" : {
+      "probabilities" : {
+        "0.05" : {
+          "fee_rate" : 1.0
+        },
+        "0.20" : {
+          "fee_rate" : 1.0
+        },
+        "0.50" : {
+          "fee_rate" : 1.0
+        },
+        "0.80" : {
+          "fee_rate" : 1.0
+        },
+        "0.95" : {
+          "fee_rate" : 1.0
+        }
+      }
+    },
+    "9" : {
+      "probabilities" : {
+        "0.05" : {
+          "fee_rate" : 1.0
+        },
+        "0.20" : {
+          "fee_rate" : 1.0
+        },
+        "0.50" : {
+          "fee_rate" : 1.0
+        },
+        "0.80" : {
+          "fee_rate" : 1.0
+        },
+        "0.95" : {
+          "fee_rate" : 1.0
+        }
+      }
+    }
+  }
+}
+
+```
+
 ## Local Development
 If you'd like to use a local version of [augur](https://github.com/block/bitcoin-augur) within your reference implementation:
 - Within augur, run `bin/gradle shadowJar` to build a fat jar of augur.
