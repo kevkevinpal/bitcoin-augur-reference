@@ -231,18 +231,18 @@ class FeeEstimateEndpointTest {
     val mockBlockTarget1 = mockk<xyz.block.augur.BlockTarget>()
     every { mockBlockTarget1.probabilities } returns mapOf(
       TestData.Probabilities.MEDIUM to TestData.FeeRates.LOW_BLOCK1,
-      TestData.Probabilities.HIGH to TestData.FeeRates.HIGH_BLOCK1
+      TestData.Probabilities.HIGH to TestData.FeeRates.HIGH_BLOCK1,
     )
 
     val mockBlockTarget6 = mockk<xyz.block.augur.BlockTarget>()
     every { mockBlockTarget6.probabilities } returns mapOf(
       TestData.Probabilities.MEDIUM to TestData.FeeRates.LOW_BLOCK6,
-      TestData.Probabilities.HIGH to TestData.FeeRates.HIGH_BLOCK6
+      TestData.Probabilities.HIGH to TestData.FeeRates.HIGH_BLOCK6,
     )
 
     every { mockFeeEstimate.estimates } returns mapOf(
       TestData.BlockTargets.TARGET_1 to mockBlockTarget1,
-      TestData.BlockTargets.TARGET_6 to mockBlockTarget6
+      TestData.BlockTargets.TARGET_6 to mockBlockTarget6,
     )
 
     return mockFeeEstimate
