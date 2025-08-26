@@ -42,6 +42,7 @@ data class BitcoinRpcConfig(
 @Serializable
 data class PersistenceConfig(
   val dataDirectory: String = "mempool_data",
+  val cleanupDays: Int = 0, // 0 means disabled, any positive value enables cleanup after N days
 ) {
   fun getDataDirectoryFile(): File = File(dataDirectory)
 }

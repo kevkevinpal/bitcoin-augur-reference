@@ -10,3 +10,4 @@ bitcoinRpc:
 
 persistence:
   dataDirectory: "mempool_data"
+  cleanupDays: 0  # Set to 0 to disable cleanup, or number of days to retain files

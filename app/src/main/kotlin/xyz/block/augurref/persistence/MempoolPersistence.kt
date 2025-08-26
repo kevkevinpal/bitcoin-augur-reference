@@ -98,4 +98,52 @@ class MempoolPersistence(private val config: PersistenceConfig) {
     logger.debug("Found ${snapshots.size} snapshots in date range")
     return snapshots.sortedBy { it.timestamp }
   }
+
+  /**
+   * Clean up old mempool data files based on the configured cleanup days
+   */
+  fun cleanupOldFiles() {
+    if (config.cleanupDays <= 0) {
+      logger.debug("Cleanup is disabled (cleanupDays=${config.cleanupDays})")
+      return
+    }
+
+    val cutoffDate = LocalDateTime.now().minusDays(config.cleanupDays.toLong()).toLocalDate()
+    logger.info("Starting cleanup of mempool data older than $cutoffDate (${config.cleanupDays} days)")
+
+    val dataDir = config.getDataDirectoryFile()
+    if (!dataDir.exists()) {
+      logger.debug("Data directory does not exist: ${dataDir.absolutePath}")
+      return
+    }
+
+    var deletedDirs = 0
+    var deletedFiles = 0
+
+    dataDir.listFiles()?.forEach { file ->
+      if (file.isDirectory) {
+        try {
+          val dirDate = LocalDateTime.parse("${file.name}T00:00:00").toLocalDate()
+          if (dirDate.isBefore(cutoffDate)) {
+            // Count files before deletion
+            val fileCount = file.listFiles()?.size ?: 0
+            
+            // Delete the entire date directory
+            val deleted = file.deleteRecursively()
+            if (deleted) {
+              deletedDirs++
+              deletedFiles += fileCount
+              logger.debug("Deleted date directory: ${file.name} (contained $fileCount files)")
+            } else {
+              logger.warn("Failed to delete date directory: ${file.name}")
+            }
+          }
+        } catch (e: Exception) {
+          logger.warn("Skipping directory with invalid date format: ${file.name}", e)
+        }
+      }
+    }
+
+    logger.info("Cleanup completed: deleted $deletedDirs directories containing $deletedFiles files")
+  }
 }

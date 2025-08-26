@@ -58,12 +58,28 @@ fun main() {
     httpServer.start()
     mempoolCollector.start()
 
+    // Set up periodic cleanup if enabled
+    val cleanupTimer = if (config.persistence.cleanupDays > 0) {
+      logger.info("Starting periodic mempool data cleanup every 24 hours")
+      kotlin.concurrent.fixedRateTimer("mempool-cleanup", period = 24 * 60 * 60 * 1000) { // 24 hours
+        try {
+          persistence.cleanupOldFiles()
+        } catch (e: Exception) {
+          logger.error("Error during mempool data cleanup", e)
+        }
+      }
+    } else {
+      logger.info("Mempool data cleanup is disabled (cleanupDays=${config.persistence.cleanupDays})")
+      null
+    }
+
     // Shutdown hook
     Runtime.getRuntime().addShutdownHook(
       Thread {
         logger.info("Shutting down application")
         mempoolCollector.stop()
         httpServer.stop()
+        cleanupTimer?.cancel()
         logger.info("Application shutdown completed")
       },
     )
