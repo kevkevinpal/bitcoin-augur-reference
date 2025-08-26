@@ -10,3 +10,4 @@ bitcoinRpc:
 
 persistence:
   dataDirectory: "mempool_data"
+  # retentionDays: 7  # Uncomment to automatically delete data older than 7 days

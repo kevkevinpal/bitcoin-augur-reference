@@ -59,6 +59,9 @@ class MempoolPersistence(private val config: PersistenceConfig) {
 
     logger.debug("Saving snapshot to ${file.absolutePath}")
     file.writeText(mapper.writeValueAsString(snapshot))
+    
+    // Cleanup old files if retention period is configured
+    cleanupOldFiles()
   }
 
   /**
@@ -97,5 +100,61 @@ class MempoolPersistence(private val config: PersistenceConfig) {
 
     logger.debug("Found ${snapshots.size} snapshots in date range")
     return snapshots.sortedBy { it.timestamp }
+  }
+
+  /**
+   * Clean up old mempool data files based on retention configuration
+   */
+  private fun cleanupOldFiles() {
+    val retentionDays = config.retentionDays
+    if (retentionDays == null || retentionDays <= 0) {
+      return // No cleanup configured
+    }
+
+    val dataDir = config.getDataDirectoryFile()
+    if (!dataDir.exists()) {
+      return
+    }
+
+    val cutoffDate = LocalDate.now().minusDays(retentionDays.toLong())
+    logger.debug("Cleaning up mempool data older than $retentionDays days (before $cutoffDate)")
+
+    dataDir.listFiles()?.forEach { dateDir ->
+      if (dateDir.isDirectory) {
+        try {
+          val dirDate = LocalDate.parse(dateDir.name, dateFormatter)
+          if (dirDate.isBefore(cutoffDate)) {
+            logger.info("Deleting old mempool data directory: ${dateDir.name}")
+            deleteDirectoryRecursively(dateDir)
+          }
+        } catch (e: Exception) {
+          logger.warn("Skipping directory with invalid date format: ${dateDir.name}", e)
+        }
+      }
+    }
+  }
+
+  /**
+   * Recursively delete a directory and all its contents
+   */
+  private fun deleteDirectoryRecursively(directory: File): Boolean {
+    if (!directory.exists()) {
+      return true
+    }
+
+    if (directory.isDirectory) {
+      directory.listFiles()?.forEach { child ->
+        if (!deleteDirectoryRecursively(child)) {
+          logger.error("Failed to delete: ${child.absolutePath}")
+          return false
+        }
+      }
+    }
+
+    val deleted = directory.delete()
+    if (!deleted) {
+      logger.error("Failed to delete: ${directory.absolutePath}")
+    }
+    return deleted
   }
 }
