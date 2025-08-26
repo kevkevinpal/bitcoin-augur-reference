@@ -10,3 +10,5 @@ bitcoinRpc:
 
 persistence:
   dataDirectory: "mempool_data"
+  # Number of days to retain mempool data files (0 = disabled, keep indefinitely)
+  retentionDays: 0

@@ -44,13 +44,15 @@ object ConfigLoader {
       ),
       persistence = config.persistence.copy(
         dataDirectory = System.getenv("AUGUR_DATA_DIR") ?: config.persistence.dataDirectory,
+        retentionDays = System.getenv("AUGUR_RETENTION_DAYS")?.toIntOrNull() ?: config.persistence.retentionDays,
       ),
     ).also { finalConfig ->
       logger.info(
         "Loaded configuration: " +
           "server.port=${finalConfig.server.port}, " +
           "bitcoinRpc.url=${finalConfig.bitcoinRpc.url}, " +
-          "persistence.dataDirectory=${finalConfig.persistence.dataDirectory}",
+          "persistence.dataDirectory=${finalConfig.persistence.dataDirectory}, " +
+          "persistence.retentionDays=${finalConfig.persistence.retentionDays}",
       )
     }
   }
